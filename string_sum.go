@@ -2,6 +2,9 @@ package string_sum
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 //use these errors as appropriate, wrapping them with fmt.Errorf function
@@ -23,5 +26,53 @@ var (
 // Use the errors defined above as described, again wrapping into fmt.Errorf
 
 func StringSum(input string) (output string, err error) {
-	return "", nil
+	input = strings.ReplaceAll(input, " ", "")
+
+	if len(input) == 0 {
+		err = fmt.Errorf("%w", errorEmptyInput)
+		return
+	}
+
+	number := ""
+
+	if input[0] == '-' || input[0] == '+' {
+		number += string(input[0])
+		input = input[1:]
+	}
+
+	rightBound := strings.Index(input, "+")
+	if rightBound == -1 {
+		rightBound = strings.Index(input, "-")
+	}
+
+	if rightBound != -1 {
+		number += input[:rightBound]
+		input = input[rightBound:]
+	} else {
+		err = fmt.Errorf("%w", errorNotTwoOperands)
+		return
+	}
+
+	signsCount := strings.Count(input, "+") + strings.Count(input, "-")
+
+	if signsCount != 1 {
+		err = fmt.Errorf("%w", errorNotTwoOperands)
+		return
+	}
+
+	a, err := strconv.Atoi(number)
+
+	if err != nil {
+		err = &strconv.NumError{Func: "Atoi", Num: number, Err: err}
+		return
+	}
+
+	b, err := strconv.Atoi(input)
+
+	if err != nil {
+		err = &strconv.NumError{Func: "Atoi", Num: input, Err: err}
+		return
+	}
+
+	return strconv.Itoa(a + b), nil
 }
